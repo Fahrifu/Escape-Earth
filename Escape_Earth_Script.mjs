@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
+import { error } from 'console';
 
 // Email for authentication
 const PLAYER = "hlmnguyen@uia.no";
@@ -35,7 +36,7 @@ async function startChallenge() {
  */
 async function solveSunRadiusChallenge() {
     try {
-        console.log("Fetching data...") 
+        console.log("Fetching Sun Data...");
         const response = await fetch(`${SOLAR_SYSTEM_API}/bodies/soleil`);
         const sunData = await response.json();
 
@@ -48,7 +49,7 @@ async function solveSunRadiusChallenge() {
 
         console.log(`Equatorial Radius: ${equatorialRadius} km`);
         console.log(`Mean Radius: ${meanRadius} km`);
-        console.log(`Calcualted Access Pin: ${accessPin}`);
+        console.log(`Calculated Access Pin: ${accessPin}`);
 
         //Submitting the computed answer
         const result = await submitAnswer(accessPin);
@@ -56,7 +57,7 @@ async function solveSunRadiusChallenge() {
 
         //If a new challenge is presented, proceed to the next step
         if (result.nextChallenge) {
-
+            await solveAxialTiltChallenge();
         }
 
         //If a skeleton key is received, save it
@@ -65,6 +66,50 @@ async function solveSunRadiusChallenge() {
         }
     } catch (error) {
         console.error(" Error solving sun radius challenge: ", error);
+    }
+}
+
+/**
+ * Solves the axial tilt challenge by finding the planet with the closest axial tilt to Earth.
+ */
+
+async function solveAxialTiltChallenge() {
+    try {
+        console.log("Fetching planetary data...");
+        const response = await fetch(`${SOLAR_SYSTEM_API}/bodies`);
+        const planetsData = await response.json();
+
+        // Find Earth's axial tilt
+        const earthData = planetsData.bodies.find(body => body.id === "terre");
+        if (!earthData) throw new error("Earth data not found");
+        const earthAxialTilt = earthData.axialTilt;
+
+        let closestPlanet = null;
+        let smallestDifference = Infinity;
+
+        // Iterate over all planets to find the closest axial tilt to Earth
+        for (const body of planetsData.bodies) {
+            if (body.axialTilt !== undefined && body.id !== "terre") {
+                const diff = Math.abs(body.axialTilt - earthAxialTilt);
+                if (diff < smallestDifference) {
+                    smallestDifference = diff;
+                    closestPlanet = body
+                }
+            }
+        }
+
+        if (!closestPlanet) {
+            throw new error("No suitable planet found");
+        }
+
+        // Submit the closest planet found
+        console.log(`Earth Axial Tilt: ${earthAxialTilt}°`);
+        console.log(`Closest Planet: ${closestPlanet.id} with Axial Tilt: ${closestPlanet.axialTilt}°`);
+
+        const result = await submitAnswer(closestPlanet.id);
+        console.log("Response from RIS: ", result);
+    } catch (error) {
+        console.error("Error solving Axial Tilt challenge:", error);
     }
 }
 
@@ -86,3 +131,4 @@ async function submitAnswer(answer) {
     }
 }
 
+startChallenge().catch(console.error);
