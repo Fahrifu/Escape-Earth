@@ -260,6 +260,10 @@ async function solvePlutoClassificationChallenge() {
         // Submit the answer
         const result = await submitAnswer(classification);
         console.log("Response from RIS:", result);
+
+        if (result.sceletonKey) {
+            await saveSkeletonKey();
+        }
     } catch (error) {
         console.error("Error solving Pluto Classification Challenge: ", error)
     }
