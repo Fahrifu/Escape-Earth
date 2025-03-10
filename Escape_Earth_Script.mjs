@@ -62,8 +62,9 @@ async function solveSunRadiusChallenge() {
 
         //If a skeleton key is received, save it
         if (result.skeletonKey) {
-            
+            saveSkeletonKey(result.skeletonKey)
         }
+
     } catch (error) {
         console.error(" Error solving sun radius challenge: ", error);
     }
@@ -114,6 +115,11 @@ async function solveAxialTiltChallenge() {
             await solveShortestDayChallenge();
         }
 
+        //If a skeleton key is received, save it
+        if (result.skeletonKey) {
+            saveSkeletonKey(result.skeletonKey)
+        }
+
     } catch (error) {
         console.error("Error solving Axial Tilt challenge:", error);
     }
@@ -154,6 +160,12 @@ async function solveShortestDayChallenge() {
         if (result.nextChallenge) {
             await solveJupiterMoonsChallenge();
         }
+
+        //If a skeleton key is received, save it
+        if (result.skeletonKey) {
+            saveSkeletonKey(result.skeletonKey)
+        }
+
     } catch (error) {
         console.error("Error solving Shortest Day Challenge:", error);
     }
@@ -177,6 +189,16 @@ async function solveJupiterMoonsChallenge() {
         // Submit the answer
         const result = await submitAnswer(numberOfMoons);
         console.log("Response from RIS:", result);
+
+        if (result.nextChallenge) {
+            
+        }
+
+        //If a skeleton key is received, save it
+        if (result.skeletonKey) {
+            saveSkeletonKey(result.skeletonKey)
+        }
+
     } catch (error) {
         console.error("Error solving Jupiter Moons Challenge", error);
     }
