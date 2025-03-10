@@ -191,7 +191,7 @@ async function solveJupiterMoonsChallenge() {
         console.log("Response from RIS:", result);
 
         if (result.nextChallenge) {
-            
+            await solveLargestJupiterMoonChallenge();
         }
 
         //If a skeleton key is received, save it
@@ -201,6 +201,43 @@ async function solveJupiterMoonsChallenge() {
 
     } catch (error) {
         console.error("Error solving Jupiter Moons Challenge", error);
+    }
+}
+
+/**
+ * Solves the challenge by finding the largest moon of Jupiter
+ */
+
+async function solveLargestJupiterMoonChallenge() {
+    try {
+        console.log("\nFetching Jupiter's Moon data...");
+        const response = await fetch(`${SOLAR_SYSTEM_API}/bodies/jupiter`);
+        
+        
+
+        // Largest known moon of Jupiter is Ganymede
+        const largestMoonId = "ganymede";
+        const moonResponse = await fetch(`${SOLAR_SYSTEM_API}/bodies/${largestMoonId}`);
+        if (!moonResponse.ok) throw new Error("Failed to fetch Ganymede data");
+        const moonData = await moonResponse.json();
+
+        console.log(`🌕 Largest moon of Jupiter: ${moonData.englishName} (ID: ${moonData.id}) with Radius: ${moonData.meanRadius} km`);
+
+        // Submit the answer
+        const result = await submitAnswer(moonData.id);
+        console.log("📜 Response from RIS:", result);
+
+        if (result.nextChallenge) {
+            
+        }
+
+        //If a skeleton key is received, save it
+        if (result.skeletonKey) {
+            saveSkeletonKey(result.skeletonKey)
+        }
+
+    } catch (error) {
+        console.error("Error solving Largest Jupiter Moon challenge:", error)
     }
 }
 
