@@ -262,7 +262,7 @@ async function solvePlutoClassificationChallenge() {
         console.log("Response from RIS:", result);
 
         if (result.sceletonKey) {
-            await saveSkeletonKey();
+            saveSkeletonKey(result.sceletonKey);
         }
     } catch (error) {
         console.error("Error solving Pluto Classification Challenge: ", error)
