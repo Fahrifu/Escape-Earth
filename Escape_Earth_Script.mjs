@@ -149,12 +149,38 @@ async function solveShortestDayChallenge() {
         // Submit the answer
         const result = await submitAnswer(shortestDayPlanet.id);
         console.log("Response from RIS:", result);
+
+        // If a new challenge presented, proceed to the next step
+        if (result.nextChallenge) {
+            await solveJupiterMoonsChallenge();
+        }
     } catch (error) {
         console.error("Error solving Shortest Day Challenge:", error);
     }
 }
 
+/**
+ * Solves the challenge by finding the number of moons around Jupiter
+ */
 
+async function solveJupiterMoonsChallenge() {
+    try {
+        console.log("\nFetching Jupiter's moon data...");
+        const response = await fetch(`${SOLAR_SYSTEM_API}/bodies/jupiter`);
+        const jupiterData = await response.json();
+
+        // Extract the number of moons Jupiter has
+        const numberOfMoons = jupiterData.moons ? jupiterData.moons.length : 0;
+
+        console.log(`Jupiter has ${numberOfMoons} moons`);
+
+        // Submit the answer
+        const result = await submitAnswer(numberOfMoons);
+        console.log("Response from RIS:", result);
+    } catch (error) {
+        console.error("Error solving Jupiter Moons Challenge", error);
+    }
+}
 
 /**
  * Submits an answer to the RIS system
