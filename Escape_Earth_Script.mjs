@@ -229,7 +229,7 @@ async function solveLargestJupiterMoonChallenge() {
         console.log("📜 Response from RIS:", result);
 
         if (result.nextChallenge) {
-            
+            await solvePlutoClassificationChallenge();
         }
 
         //If a skeleton key is received, save it
@@ -239,6 +239,29 @@ async function solveLargestJupiterMoonChallenge() {
 
     } catch (error) {
         console.error("Error solving Largest Jupiter Moon challenge:", error)
+    }
+}
+
+/**
+ * Solves the challenge by finding Pluto's classification
+ */
+
+async function solvePlutoClassificationChallenge() {
+    try {
+        console.log("\n Fetching Pluto's classification...");
+        const response = await fetch(`${SOLAR_SYSTEM_API}/bodies/pluto`);
+        const plutoData = await response.json();
+
+        // Extract Pluto's classification
+        const classification = plutoData.bodyType;
+
+        console.log(`Pluto Classification: ${classification}`);
+
+        // Submit the answer
+        const result = await submitAnswer(classification);
+        console.log("Response from RIS:", result);
+    } catch (error) {
+        console.error("Error solving Pluto Classification Challenge: ", error)
     }
 }
 
