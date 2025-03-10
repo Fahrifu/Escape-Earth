@@ -212,7 +212,8 @@ async function solveLargestJupiterMoonChallenge() {
     try {
         console.log("\nFetching Jupiter's Moon data...");
         const response = await fetch(`${SOLAR_SYSTEM_API}/bodies/jupiter`);
-        
+        if(!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        const jupiterData = await response.json();
         
 
         // Largest known moon of Jupiter is Ganymede
