@@ -36,7 +36,7 @@ async function startChallenge() {
  */
 async function solveSunRadiusChallenge() {
     try {
-        console.log("Fetching Sun Data...");
+        console.log("\nFetching Sun Data...");
         const response = await fetch(`${SOLAR_SYSTEM_API}/bodies/soleil`);
         const sunData = await response.json();
 
@@ -75,7 +75,7 @@ async function solveSunRadiusChallenge() {
 
 async function solveAxialTiltChallenge() {
     try {
-        console.log("Fetching planetary data...");
+        console.log("\nFetching planetary data...");
         const response = await fetch(`${SOLAR_SYSTEM_API}/bodies`);
         const planetsData = await response.json();
 
@@ -99,7 +99,7 @@ async function solveAxialTiltChallenge() {
         }
 
         if (!closestPlanet) {
-            throw new error("No suitable planet found");
+            throw new Error("No suitable planet found");
         }
 
         // Submit the closest planet found
@@ -108,10 +108,53 @@ async function solveAxialTiltChallenge() {
 
         const result = await submitAnswer(closestPlanet.id);
         console.log("Response from RIS: ", result);
+        
+        // If a new challenge presented, proceed to the next step 
+        if (result.nextChallenge) {
+            await solveShortestDayChallenge();
+        }
+
     } catch (error) {
         console.error("Error solving Axial Tilt challenge:", error);
     }
 }
+
+/**
+ * Solves the shortest day challenge by finding the planet with shortest rotation period
+ */
+async function solveShortestDayChallenge() {
+    try {
+        console.log("\nFinding planet with shortest day...");
+        const response = await fetch(`${SOLAR_SYSTEM_API}/bodies`);
+        const planetsData = await response.json();
+
+        // Find the planet with the shortest day (shortest rotation period)
+        let shortestDayPlanet = null;
+        let shortestRotationPeriod = Infinity;
+
+        // sideralRotation represent the length of a planet's day in hours
+        for (const body of planetsData.bodies) {
+            if (body.isPlanet && body.sideralRotation !== undefined && body.sideralRotation > 0) {
+                if (body.sideralRotation < shortestRotationPeriod) {
+                    shortestRotationPeriod = body.sideralRotation;
+                    shortestDayPlanet = body;
+                }
+            }
+        } 
+
+        if (!shortestDayPlanet) throw new Error("No suitable planet found");
+
+        console.log(`Planet with shortest day: ${shortestDayPlanet.id} with Rotation Period: ${shortestDayPlanet.sideralRotation} hours`);
+
+        // Submit the answer
+        const result = await submitAnswer(shortestDayPlanet.id);
+        console.log("Response from RIS:", result);
+    } catch (error) {
+        console.error("Error solving Shortest Day Challenge:", error);
+    }
+}
+
+
 
 /**
  * Submits an answer to the RIS system
@@ -129,6 +172,11 @@ async function submitAnswer(answer) {
     } catch (error) {
         console.error("Error submit answer:", error);
     }
+}
+
+function saveSkeletonKey(key) {
+    fs.writeFileSync("skeleton.txt", key, "utf8");
+    console.log("Skeleton key Saved");
 }
 
 startChallenge().catch(console.error);
